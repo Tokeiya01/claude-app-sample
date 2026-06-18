@@ -1,117 +1,131 @@
 // ============================================================
-// Core Types for 日経TEST対策アプリ「KeizaiSense」
+// KeizaiSense — Core Type Definitions
 // ============================================================
 
+export type CategoryId =
+  | 'macro'        // マクロ経済
+  | 'micro'        // ミクロ経済
+  | 'finance'      // 金融・為替
+  | 'fiscal'       // 財政・税制
+  | 'global'       // 国際経済
+  | 'strategy'     // 企業戦略
+  | 'industry'     // 産業動向
+  | 'tech'         // テクノロジー・AI
+  | 'geopolitics'  // 政治・地政学と経済
+  | 'esg'          // ESG・サステナビリティ
+  | 'stats'        // 統計・指標の読み取り
+  | 'news';        // 時事ニュース理解
+
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export type FSRSRating = 1 | 2 | 3 | 4; // Again / Hard / Good / Easy
+export type SourceType = 'news' | 'concept' | 'mixed';
+export type ExamMode = 'mock' | 'daily' | 'weak';
 
 export interface Category {
-  id: string;
+  id: CategoryId;
   name: string;
   description: string;
-  color: string; // tailwind color class
+  color: string;       // Tailwind bg color class (light theme)
+  textColor: string;   // Tailwind text color class
 }
 
 export interface Choice {
-  id: string;
+  id: string;  // 'A' | 'B' | 'C' | 'D'
   text: string;
-  isCorrect: boolean;
-}
-
-export interface Explanation {
-  summary: string;
-  detail: string;
-  keywords: string[];
-  references?: string[];
 }
 
 export interface Question {
   id: string;
-  categoryId: string;
-  text: string;
+  modes: ExamMode[];
+  title?: string;
+  question: string;
   choices: Choice[];
-  explanation: Explanation;
+  answer: string;          // Choice id of correct answer
+  explanation: string;     // Full explanation
+  category: CategoryId;
+  subcategory: string;
   difficulty: Difficulty;
-  estimatedSeconds: number;
+  source_type: SourceType;
+  source_title: string;
+  source_url?: string;
+  source_date?: string;
+  generated_at: string;
+  freshness_score: number;  // 0-1, higher = fresher
+  quality_score: number;    // 0-1
+  relevance_score: number;  // 0-1
   tags: string[];
-  type: 'fixed' | 'news';
-  // news-only fields
-  newsSourceId?: string;
-  newsArticleId?: string;
-  publishedAt?: string;
-  relatedKeywords?: string[];
-  isArchived?: boolean;
+  estimatedSeconds: number;
 }
 
-export interface StudyLog {
+export interface Attempt {
   id: string;
-  questionId: string;
-  answeredAt: string;
-  selectedChoiceId: string;
-  isCorrect: boolean;
-  timeSpentSeconds: number;
-  fsrsRating?: FSRSRating;
+  session_id: string;
+  question_id: string;
+  mode: ExamMode;
+  selected_choice: string;
+  is_correct: boolean;
+  answered_at: string;  // ISO8601
+  response_time_sec: number;
+  category: CategoryId;
+  subcategory: string;
+  difficulty: Difficulty;
 }
 
-export interface ReviewState {
-  questionId: string;
-  stability: number;    // FSRS stability (days)
-  difficulty: number;   // FSRS difficulty 0-1
-  dueDate: string;      // ISO date
-  reviewCount: number;
-  lapseCount: number;
-  lastReviewedAt: string;
-}
-
-export interface MockTestResult {
+export interface ExamSession {
   id: string;
-  takenAt: string;
-  mode: 'standard' | 'news-mix';
-  questionIds: string[];
-  answers: { questionId: string; choiceId: string; isCorrect: boolean }[];
-  durationSeconds: number;
-  scorePercent: number;
-  categoryScores: { categoryId: string; correct: number; total: number }[];
-}
-
-export interface DailyChallenge {
-  date: string; // YYYY-MM-DD
-  questionIds: string[];
-  completedAt?: string;
+  mode: ExamMode;
+  started_at: string;
+  finished_at?: string;
+  question_ids: string[];
+  answers: Record<string, string>;  // questionId → choiceId
   score?: number;
+  accuracy?: number;
+  category_breakdown?: Record<string, { correct: number; total: number }>;
+  weak_area_snapshot?: WeaknessData[];
+  time_limit_sec?: number;
+  elapsed_sec?: number;
 }
 
-export interface NewsArticle {
-  id: string;
-  title: string;
-  summary: string;
-  sourceName: string;
-  sourceUrl?: string;
-  publishedAt: string;
-  categoryId: string;
-  keywords: string[];
-  isProcessed: boolean;
+export interface UserProfile {
+  display_name: string;
+  goal_score: number;
+  preferred_difficulty: Difficulty | 'mixed';
+  study_days: string[];  // YYYY-MM-DD[]
+  last_active_at: string;
 }
 
 export interface WeaknessData {
-  categoryId: string;
+  category: CategoryId;
   categoryName: string;
   totalAnswered: number;
   correctCount: number;
   accuracyRate: number;        // 0-1
   recentAccuracyRate: number;  // last 10 answers
-  overdueReviewCount: number;
-  avgTimeSeconds: number;
-  score: number;               // weakness score 0-1 (higher = weaker)
-  color: string;               // heatmap color
+  hardAccuracyRate: number;    // hard difficulty accuracy
+  avgResponseSec: number;
+  consecutiveWrong: number;
+  recentDecline: number;       // 0-1, higher = more decline recently
+  weakness_score: number;      // 0-1, higher = weaker
+}
+
+export interface CategoryMastery {
+  category: CategoryId;
+  categoryName: string;
+  mastery_score: number;  // 0-1
+  accuracy: number;
+  hardAccuracy: number;
+  improvement: number;
+  speedBonus: number;
+  stability: number;
 }
 
 export interface LearningStats {
-  todayCount: number;
-  streakDays: number;
   totalAnswered: number;
   totalCorrect: number;
-  overdueReviews: number;
-  weeklyGoal: number;
-  weeklyProgress: number;
+  overallAccuracy: number;
+  streakDays: number;
+  todayAnswered: number;
+  todayCorrect: number;
+  mockSessionCount: number;
+  lastMockScore?: number;
+  lastMockDate?: string;
 }
