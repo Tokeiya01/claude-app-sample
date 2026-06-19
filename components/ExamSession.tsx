@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock, X } from 'lucide-react';
-import { Question, ExamMode } from '@/lib/types';
+import { Question, ExamMode, ExamSession as ExamSessionType } from '@/lib/types';
 import { saveAttempt, createAttempt, saveSession, finishSession } from '@/lib/store';
 import QuestionCard, { QuestionCardAnswer } from '@/components/QuestionCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -9,7 +9,7 @@ import { formatTime } from '@/lib/utils';
 import ResultScreen from '@/components/ResultScreen';
 
 interface Props {
-  session: import('@/lib/types').ExamSession;
+  session: ExamSessionType;
   questions: Question[];
   mode: ExamMode;
   timeLimitSec?: number;
@@ -29,7 +29,7 @@ export default function ExamSession({
   const [answers, setAnswers] = useState<Record<string, string>>(session.answers ?? {});
   const [elapsed, setElapsed] = useState(0);
   const [finished, setFinished] = useState(false);
-  const [finishedSession, setFinishedSession] = useState<import('@/lib/types').ExamSession | null>(null);
+  const [finishedSession, setFinishedSession] = useState<ExamSessionType | null>(null);
   const [answerTimes, setAnswerTimes] = useState<Record<string, number>>({});
   const startedAt = useRef(Date.now());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);

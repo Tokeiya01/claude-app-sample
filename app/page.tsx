@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Trophy, Target, BarChart2, Flame, TrendingUp, ChevronRight, BookOpen } from 'lucide-react';
+import { Calendar, Trophy, Target, BarChart2, Flame, TrendingUp, ChevronRight, BookOpen, Settings } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { getAttempts, getSessions, getProfile } from '@/lib/store';
@@ -41,12 +41,17 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-extrabold text-gray-900 mt-0.5">KeizaiSense</h1>
           <p className="text-gray-500 text-sm">日経TEST対策アプリ</p>
         </div>
-        {(profile.study_days?.length ?? 0) > 0 && (
-          <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
-            <Flame size={18} className="text-orange-500" />
-            <span className="text-orange-700 text-sm font-bold">{profile.study_days?.length ?? 0}日連続</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {(profile.study_days?.length ?? 0) > 0 && (
+            <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
+              <Flame size={18} className="text-orange-500" />
+              <span className="text-orange-700 text-sm font-bold">{profile.study_days?.length ?? 0}日連続</span>
+            </div>
+          )}
+          <Link href="/settings" className="p-2 text-gray-400 hover:text-gray-600">
+            <Settings size={22} />
+          </Link>
+        </div>
       </div>
 
       {/* 今日のサマリー */}
