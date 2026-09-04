@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "technoa-mcp-sqlserver": {
+      "command": "C:\\Users\\naoki.hori\\AppData\\Local\\biz-mcp-pack\\bizmcp.exe",
+      "args": [
+        "mcp",
+        "sqlserver"
+      ]
+    }
+  }
+}
